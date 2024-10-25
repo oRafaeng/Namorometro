@@ -26,8 +26,8 @@
             left: 50%;
             width: 100%;
             height: auto;
-            aspect-ratio: 5 / 4;
-            background-size: contain; /* Altera de cover para contain */
+            aspect-ratio: 16 / 9;
+            background-size: contain;
             background-position: center;
             opacity: 0.3;
             transform: translate(-50%, -50%);
@@ -36,18 +36,18 @@
 
         @keyframes slideshow {
             0% { background-image: url('foto1.jpg'); }
-            15% { background-image: url('foto1.jpg'); } /* Tempo extra para a foto1 */
-            15.01% { background-image: url('foto2.jpg'); } /* Início da foto2 */
+            15% { background-image: url('foto1.jpg'); }
+            15.01% { background-image: url('foto2.jpg'); }
             30% { background-image: url('foto2.jpg'); }
-            30.01% { background-image: url('foto3.jpg'); } /* Início da foto3 */
+            30.01% { background-image: url('foto3.jpg'); }
             45% { background-image: url('foto3.jpg'); }
-            45.01% { background-image: url('foto4.jpg'); } /* Início da foto4 */
+            45.01% { background-image: url('foto4.jpg'); }
             60% { background-image: url('foto4.jpg'); }
-            60.01% { background-image: url('foto5.jpg'); } /* Início da foto5 */
+            60.01% { background-image: url('foto5.jpg'); }
             75% { background-image: url('foto5.jpg'); }
-            75.01% { background-image: url('foto6.jpg'); } /* Início da foto6 */
+            75.01% { background-image: url('foto6.jpg'); }
             90% { background-image: url('foto6.jpg'); }
-            90.01% { background-image: url('foto7.jpg'); } /* Início da foto7 */
+            90.01% { background-image: url('foto7.jpg'); }
             100% { background-image: url('foto7.jpg'); }
         }
 
@@ -55,6 +55,7 @@
             position: relative;
             z-index: 1;
             text-align: center;
+            display: none;
         }
 
         .timer {
@@ -66,19 +67,48 @@
             font-size: 1.5em;
             margin-top: 10px;
         }
+
+        /* Mensagem de parabéns */
+        .special-message {
+            display: none;
+            font-size: 3em;
+            color: #ffd700;
+            text-align: center;
+        }
+
+        /* CSS para confetes */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ffd700;
+            opacity: 0;
+            animation: fall 2s infinite;
+            top: -10px;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
     <div class="background"></div>
-    <div class="container">
+    
+    <!-- Container para a exibição normal -->
+    <div class="container" id="content-container">
         <h1>Nosso Tempo Juntos</h1>
         <div class="timer" id="timer">Carregando...</div>
         <div class="message">Você é tudo pra mim!<br>Eu te amo muito ❤️</div>
     </div>
 
+    <!-- Mensagem especial -->
+    <div class="special-message" id="special-message">Parabéns pelo nosso dia! 🎉</div>
+
     <script>
-        // JavaScript
-        const startDate = new Date('2024-07-17T00:00:00');
+        const startDate = new Date('2024-07-17T21:00:00');
+        let anniversaryShown = false; // Variável de controle para evitar pisca-pisca
 
         function updateTimer() {
             const now = new Date();
@@ -91,6 +121,55 @@
 
             document.getElementById('timer').textContent = 
                 `${days} dias, ${hours} horas, ${minutes} minutos e ${seconds} segundos`;
+
+            checkAnniversary(now);
+        }
+
+        function checkAnniversary(now) {
+            const anniversaryDay = 17;
+            const monthsTogether = (now.getFullYear() - startDate.getFullYear()) * 12 + now.getMonth() - startDate.getMonth();
+
+            // Verifica se é o dia 17 e se a mensagem já não foi mostrada
+            if (now.getDate() === anniversaryDay && !anniversaryShown) {
+                anniversaryShown = true; // Marca que a mensagem foi exibida
+                const message = document.getElementById('special-message');
+                message.textContent = `Parabéns pelo nosso dia! 🎉 Estamos juntos há ${monthsTogether} meses!`;
+                message.style.display = 'block';
+
+                // Oculta o conteúdo principal e inicia confetes
+                document.getElementById('content-container').style.display = 'none';
+                createConfetti();
+
+                // Exibe o conteúdo principal após 10 segundos
+                setTimeout(() => {
+                    message.style.display = 'none';
+                    document.getElementById('content-container').style.display = 'block';
+                    clearConfetti();
+                }, 10000);
+            } else if (now.getDate() !== anniversaryDay) {
+                // Reseta a variável para o próximo mês, se não for dia 17
+                anniversaryShown = false;
+                document.getElementById('content-container').style.display = 'block';
+                document.getElementById('special-message').style.display = 'none';
+            }
+        }
+
+        function createConfetti() {
+            const confettiCount = 100;
+            const confettiContainer = document.body;
+
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.animationDuration = `${Math.random() * 2 + 1}s`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confettiContainer.appendChild(confetti);
+            }
+        }
+
+        function clearConfetti() {
+            document.querySelectorAll('.confetti').forEach(confetti => confetti.remove());
         }
 
         setInterval(updateTimer, 1000);
